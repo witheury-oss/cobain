@@ -2,95 +2,1259 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eksplorasi AR Papua 3D</title>
-    <!-- Import library model-viewer -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D AR Keanekaragaman Budaya Indonesia - Edukasi Anak SD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for 3D & AR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Nunito (Ramah Anak SD) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* Latar belakang estetik bernuansa gelap/alam */
-            background: linear-gradient(135deg, #1a252f, #2c3e50);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef9c3 50%, #dcfce7 100%);
+            overflow-x: hidden;
+            user-select: none;
         }
-        .header {
-            text-align: center;
-            padding: 20px;
-            z-index: 10;
+        h1, h2, h3, .font-kids {
+            font-family: 'Fredoka', sans-serif;
         }
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-            letter-spacing: 2px;
-            color: #d35400; /* Warna aksen tanah/papua */
+        /* Custom Kid-Friendly 3D Buttons */
+        .btn-3d {
+            transition: all 0.15s ease;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            transform: translateY(0);
         }
-        p {
-            margin-top: 5px;
-            font-weight: 300;
-            color: #bdc3c7;
-            font-size: 0.9em;
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
         }
-        model-viewer {
-            width: 100%;
-            height: 75vh;
-            background-color: transparent;
-            --poster-color: transparent;
+        .btn-province.active {
+            ring: 4px solid #fbbf24;
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.25);
         }
-        /* Desain tombol AR */
-        .ar-button {
-            background-color: #d35400;
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(211, 84, 0, 0.4);
-            transition: all 0.3s ease;
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .ar-button:hover {
-            background-color: #e67e22;
-            box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
         }
-        .ar-button:active {
-            background-color: #a04000;
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 10px;
+        }
+        /* AR Simulated Classroom Pattern Fallback */
+        .ar-fallback-bg {
+            background-image: radial-gradient(#cbd5e1 2px, transparent 2px), linear-gradient(to bottom, #f8fafc, #e2e8f0);
+            background-size: 24px 24px, 100% 100%;
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: floatSlow 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+        }
+        .ar-live-badge {
+            animation: pulseGlow 2s infinite;
         }
     </style>
 </head>
-<body>
-    <div class="header">
-        <h1>Pesona Papua 3D</h1>
-        <p>Geser untuk memutar objek. Tekan tombol AR untuk memunculkan di dunia nyata.</p>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- HEADER CERIA -->
+    <header class="bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 text-white shadow-lg border-b-4 border-amber-600 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-white text-red-600 w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-md border-2 border-amber-300 animate-float">
+                    🌍
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-yellow-300 text-red-800 text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Edukasi SD</span>
+                        <span class="bg-white/20 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">3D & WebAR Interaktif</span>
+                    </div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-wide drop-shadow-sm">Keanekaragaman Budaya Indonesia</h1>
+                </div>
+            </div>
+
+            <!-- Score & Quiz Button -->
+            <div class="flex items-center gap-3">
+                <div class="bg-white/95 text-amber-900 px-4 py-1.5 rounded-2xl border-2 border-amber-300 shadow flex items-center gap-2">
+                    <span class="text-xl">⭐</span>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase text-amber-600 leading-none">Bintang Budaya</p>
+                        <p id="starScore" class="text-lg font-extrabold font-kids leading-tight">0 / 70</p>
+                    </div>
+                </div>
+                <button onclick="openQuizModal()" class="btn-3d bg-purple-600 hover:bg-purple-500 text-white font-kids font-bold px-4 py-2.5 rounded-2xl border-2 border-purple-300 flex items-center gap-2 text-sm md:text-base">
+                    <span class="text-lg">🎮</span>
+                    <span>Kuis Tebak Budaya!</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- BARIS TOMBOL 7 PROVINSI / WILAYAH UTAMA -->
+    <section class="bg-white/80 backdrop-blur-md border-b-2 border-sky-200 shadow-sm z-20">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-xs md:text-sm font-extrabold text-sky-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-map-location-dot text-sky-500"></i>
+                    PILIH PROVINSI / PULAU UNTUK MELIHAT 3D AR:
+                </p>
+                <span class="text-xs font-bold text-slate-500 hidden sm:inline">Klik tombol di bawah ini 👇</span>
+            </div>
+            <div id="provinceButtonsContainer" class="grid grid-cols-4 sm:grid-cols-7 gap-2 md:gap-3">
+                <!-- Diisi otomatis oleh JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- KONTEN UTAMA: PANGGUNG 3D AR (KIRI) & PANEL INFORMASI INTERAKTIF (KANAN) -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        
+        <!-- KOLOM KIRI: PANGGUNG 3D & AUGMENTED REALITY (7 Kolom di layar besar) -->
+        <div class="lg:col-span-7 flex flex-col gap-3">
+            
+            <!-- Kotak Kanvas 3D & Kamera AR -->
+            <div id="arStageContainer" class="relative w-full h-[400px] sm:h-[480px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-100">
+                
+                <!-- Elemen Video Kamera untuk Mode AR Langsung -->
+                <video id="arCameraVideo" autoplay playsinline muted class="hidden absolute inset-0 w-full h-full object-cover z-0"></video>
+                
+                <!-- Fallback Background Simulasi AR jika kamera ditolak/tidak ada -->
+                <div id="arFallbackOverlay" class="hidden absolute inset-0 w-full h-full ar-fallback-bg z-0 flex flex-col items-center justify-end pb-12 pointer-events-none">
+                    <div class="bg-amber-100/90 border-2 border-amber-400 text-amber-900 px-4 py-2 rounded-2xl text-xs font-bold shadow-md mb-auto mt-16 mx-4 text-center">
+                        📸 Simulasi Meja Kelas AR Aktif (Kamera perangkat tidak terdeteksi / izin ditolak, namun kamu tetap bisa memutar 3D AR di sini!)
+                    </div>
+                    <!-- Meja kayu visual bawah -->
+                    <div class="w-4/5 h-24 bg-amber-700/30 rounded-full blur-md transform scale-y-50"></div>
+                </div>
+
+                <!-- Kanvas 3D Three.js -->
+                <div id="threeCanvasWrapper" class="relative z-10 w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+                <!-- HUD Atas di dalam Panggung 3D -->
+                <div class="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+                    <!-- Badge Provinsi Aktif -->
+                    <div class="bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border-2 border-sky-300 flex items-center gap-2.5 pointer-events-auto">
+                        <span id="stageProvinceIcon" class="text-2xl">🕌</span>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span id="stageIslandBadge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Pulau Sumatra</span>
+                                <span id="arActiveIndicator" class="hidden ar-live-badge bg-red-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">● AR LIVE</span>
+                            </div>
+                            <h2 id="stageProvinceTitle" class="text-base sm:text-lg font-extrabold font-kids text-slate-800 leading-tight">Provinsi Aceh</h2>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Utama Mode AR Kamera Langsung -->
+                    <button id="btnToggleAR" onclick="toggleARMode()" class="pointer-events-auto btn-3d bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-kids font-bold px-4 py-2.5 rounded-2xl border-2 border-white shadow-xl flex items-center gap-2 text-xs sm:text-sm">
+                        <i class="fa-solid fa-camera-retro text-base"></i>
+                        <span id="btnToggleARText">Buka Kamera AR 3D</span>
+                    </button>
+                </div>
+
+                <!-- Label Penunjuk 3D (Floating Callouts) -->
+                <div class="absolute top-20 left-3 z-20 pointer-events-none flex flex-col gap-1.5">
+                    <div class="bg-slate-900/75 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 shadow flex items-center gap-2">
+                        <span>🏠</span>
+                        <span id="calloutHouse">Rumoh Aceh</span>
+                    </div>
+                    <div class="bg-slate-900/75 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 shadow flex items-center gap-2">
+                        <span>👘</span>
+                        <span id="calloutCostume">Pakaian Ulee Balang</span>
+                    </div>
+                </div>
+
+                <!-- Kontrol Kamera 3D (Kanan Bawah) -->
+                <div class="absolute bottom-16 right-3 z-20 flex flex-col gap-2">
+                    <button onclick="zoomCamera(-1.2)" title="Perbesar (Zoom In)" class="btn-3d w-10 h-10 rounded-2xl bg-white/90 hover:bg-white text-slate-700 font-bold shadow border-2 border-sky-200 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                    </button>
+                    <button onclick="zoomCamera(1.2)" title="Perkecil (Zoom Out)" class="btn-3d w-10 h-10 rounded-2xl bg-white/90 hover:bg-white text-slate-700 font-bold shadow border-2 border-sky-200 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-magnifying-glass-minus"></i>
+                    </button>
+                    <button onclick="toggleAutoRotate()" id="btnAutoRotate" title="Putar Otomatis" class="btn-3d w-10 h-10 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-bold shadow border-2 border-white flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-arrows-spin"></i>
+                    </button>
+                    <button onclick="resetCameraView()" title="Reset Posisi 3D" class="btn-3d w-10 h-10 rounded-2xl bg-white/90 hover:bg-white text-slate-700 font-bold shadow border-2 border-sky-200 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
+
+                <!-- Filter Fokus Objek 3D (Bawah Tengah) -->
+                <div class="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-2 bg-white/90 backdrop-blur-md p-2 rounded-2xl border-2 border-sky-200 shadow-lg">
+                    <div class="flex items-center gap-1.5 overflow-x-auto w-full justify-center">
+                        <button onclick="set3DFocus('all')" id="focusBtn-all" class="focus-btn bg-sky-500 text-white font-kids font-bold text-xs px-3 py-1.5 rounded-xl shadow-sm transition flex items-center gap-1.5 whitespace-nowrap">
+                            <span>🏝️</span> Semua Diorama 3D
+                        </button>
+                        <button onclick="set3DFocus('house')" id="focusBtn-house" class="focus-btn bg-slate-100 hover:bg-sky-100 text-slate-700 font-kids font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                            <span>🏠</span> Fokus Rumah Adat
+                        </button>
+                        <button onclick="set3DFocus('costume')" id="focusBtn-costume" class="focus-btn bg-slate-100 hover:bg-sky-100 text-slate-700 font-kids font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                            <span>👫</span> Fokus Pakaian Adat
+                        </button>
+                        <button onclick="triggerDanceAnimation()" class="bg-amber-400 hover:bg-amber-300 text-amber-950 font-kids font-bold text-xs px-3 py-1.5 rounded-xl shadow-sm transition flex items-center gap-1.5 whitespace-nowrap">
+                            <span>💃</span> Menari!
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Petunjuk Interaksi Anak SD -->
+            <div class="bg-white/90 rounded-2xl p-3 border-2 border-sky-200 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm font-bold text-slate-600">
+                <div class="flex items-center gap-2">
+                    <span class="bg-sky-100 text-sky-700 px-2.5 py-1 rounded-lg">👆 Geser / Drag</span>
+                    <span>Putar objek 3D 360°</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg">🔍 Scroll / Cubit</span>
+                    <span>Perbesar tampilan rumah & baju adat</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-lg">📷 Mode AR</span>
+                    <span>Lihat budaya di kamarmu!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KOLOM KANAN: PANEL INFORMASI & FITUR INTERAKTIF (5 Kolom di layar besar) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- Kartu Utama Informasi Provinsi -->
+            <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-xl border-4 border-amber-300 flex flex-col gap-4">
+                
+                <!-- Header Provinsi & Tombol Suara Narator -->
+                <div class="flex items-start justify-between gap-3 border-b-2 border-slate-100 pb-3">
+                    <div>
+                        <span id="infoCapitalBadge" class="text-xs font-extrabold uppercase tracking-wider text-amber-600 bg-amber-100 px-2.5 py-0.5 rounded-full">Ibu Kota: Banda Aceh</span>
+                        <h2 id="infoProvinceName" class="text-2xl sm:text-3xl font-extrabold font-kids text-slate-800 mt-1">Budaya Aceh</h2>
+                        <p id="infoProvinceTagline" class="text-xs sm:text-sm font-bold text-slate-500">Dijuluki "Serambi Mekkah" di ujung barat Pulau Sumatra</p>
+                    </div>
+                    <button id="btnSpeak" onclick="speakCurrentInfo()" class="btn-3d bg-emerald-500 hover:bg-emerald-400 text-white font-kids font-bold px-3.5 py-2.5 rounded-2xl border-2 border-emerald-200 flex items-center gap-2 text-xs sm:text-sm shrink-0">
+                        <i id="speakIcon" class="fa-solid fa-volume-high text-base"></i>
+                        <span id="speakText">Dengarkan</span>
+                    </button>
+                </div>
+
+                <!-- 5 Tombol Kategori Budaya (Ramah Anak SD) -->
+                <div>
+                    <p class="text-xs font-extrabold text-slate-400 uppercase mb-2">Pilih Topik Budaya yang Ingin Kamu Pelajari:</p>
+                    <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
+                        <button onclick="selectCategory('rumah')" id="catBtn-rumah" class="cat-btn btn-3d bg-sky-500 text-white p-2 rounded-2xl border-2 border-sky-300 flex flex-col items-center justify-center gap-1 text-center">
+                            <span class="text-xl sm:text-2xl">🏠</span>
+                            <span class="text-[11px] font-kids font-bold leading-tight">Rumah Adat</span>
+                        </button>
+                        <button onclick="selectCategory('pakaian')" id="catBtn-pakaian" class="cat-btn btn-3d bg-slate-100 hover:bg-pink-50 text-slate-700 p-2 rounded-2xl border-2 border-slate-200 flex flex-col items-center justify-center gap-1 text-center">
+                            <span class="text-xl sm:text-2xl">👘</span>
+                            <span class="text-[11px] font-kids font-bold leading-tight">Pakaian</span>
+                        </button>
+                        <button onclick="selectCategory('tarian')" id="catBtn-tarian" class="cat-btn btn-3d bg-slate-100 hover:bg-amber-50 text-slate-700 p-2 rounded-2xl border-2 border-slate-200 flex flex-col items-center justify-center gap-1 text-center">
+                            <span class="text-xl sm:text-2xl">💃</span>
+                            <span class="text-[11px] font-kids font-bold leading-tight">Tarian</span>
+                        </button>
+                        <button onclick="selectCategory('senjata')" id="catBtn-senjata" class="cat-btn btn-3d bg-slate-100 hover:bg-purple-50 text-slate-700 p-2 rounded-2xl border-2 border-slate-200 flex flex-col items-center justify-center gap-1 text-center">
+                            <span class="text-xl sm:text-2xl">🗡️</span>
+                            <span class="text-[11px] font-kids font-bold leading-tight">Senjata</span>
+                        </button>
+                        <button onclick="selectCategory('makanan')" id="catBtn-makanan" class="cat-btn btn-3d bg-slate-100 hover:bg-emerald-50 text-slate-700 p-2 rounded-2xl border-2 border-slate-200 flex flex-col items-center justify-center gap-1 text-center">
+                            <span class="text-xl sm:text-2xl">🍲</span>
+                            <span class="text-[11px] font-kids font-bold leading-tight">Makanan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kotak Detail Kategori Terpilih -->
+                <div id="categoryContentCard" class="bg-gradient-to-br from-sky-50 to-indigo-50 rounded-2xl p-4 border-2 border-sky-200 transition-all">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div id="detailEmoji" class="w-12 h-12 rounded-2xl bg-white shadow-sm border-2 border-sky-200 flex items-center justify-center text-3xl shrink-0">
+                            🏠
+                        </div>
+                        <div>
+                            <span id="detailCategoryLabel" class="text-xs font-extrabold uppercase text-sky-600">Rumah Adat Khas</span>
+                            <h3 id="detailTitle" class="text-xl font-extrabold font-kids text-slate-800 leading-snug">Rumoh Aceh (Krong Bade)</h3>
+                        </div>
+                    </div>
+                    <p id="detailDescription" class="text-sm sm:text-base text-slate-700 font-semibold leading-relaxed mt-2">
+                        Rumah panggung kayu yang tingginya sekitar 2,5 meter di atas tanah! Dibuat tanpa menggunakan paku besi, melainkan diikat dengan tali ijuk dan pasak kayu agar tahan gempa.
+                    </p>
+                </div>
+
+                <!-- Ringkasan Cepat Semua Budaya Provinsi Ini -->
+                <div class="bg-slate-50 rounded-2xl p-3.5 border-2 border-slate-200">
+                    <p class="text-xs font-extrabold uppercase text-slate-400 mb-2">📋 Rangkuman Cepat Budaya Provinsi Ini:</p>
+                    <div id="quickSummaryList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold text-slate-700">
+                        <!-- Diisi otomatis oleh JS -->
+                    </div>
+                </div>
+
+                <!-- Kotak Fakta Unik "Tahukah Kamu?" -->
+                <div class="bg-amber-100/90 rounded-2xl p-3.5 border-2 border-amber-300 flex items-start gap-3">
+                    <div class="text-2xl sm:text-3xl animate-bounce shrink-0">💡</div>
+                    <div>
+                        <h4 class="text-xs sm:text-sm font-extrabold font-kids text-amber-900 uppercase">Tahukah Kamu? (Fakta Seru!)</h4>
+                        <p id="funFactText" class="text-xs sm:text-sm font-bold text-amber-950 mt-0.5 leading-snug">
+                            Jumlah anak tangga Rumoh Aceh selalu ganjil (biasanya 7, 9, atau 11 anak tangga)!
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL KUIS INTERAKTIF ("TEBAK BUDAYA!") -->
+    <div id="quizModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 border-4 border-purple-400 shadow-2xl animate-float" style="animation-duration: 6s;">
+            <div class="flex items-center justify-between border-b-2 border-slate-100 pb-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-3xl">🎯</span>
+                    <div>
+                        <span class="text-xs font-extrabold uppercase text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">Tantangan Anak Pintar</span>
+                        <h3 class="text-xl font-extrabold font-kids text-slate-800">Kuis Tebak Budaya Indonesia!</h3>
+                    </div>
+                </div>
+                <button onclick="closeQuizModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 font-bold text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Isi Pertanyaan Kuis -->
+            <div id="quizBody">
+                <div class="flex items-center justify-between text-xs font-extrabold text-slate-500 mb-2">
+                    <span id="quizNumberText">Pertanyaan 1 dari 7</span>
+                    <span class="text-amber-600">Hadiah: +10 ⭐</span>
+                </div>
+                <div class="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mb-4">
+                    <p id="quizQuestionText" class="text-base sm:text-lg font-extrabold font-kids text-slate-800">
+                        Rumah adat yang atapnya melengkung lancip seperti tanduk kerbau dari Sumatra Barat adalah...
+                    </p>
+                </div>
+                <div id="quizOptionsContainer" class="grid grid-cols-1 gap-2.5 mb-4">
+                    <!-- Pilihan jawaban oleh JS -->
+                </div>
+                <div id="quizFeedback" class="hidden rounded-2xl p-3 text-sm font-bold mb-4 text-center"></div>
+                <div class="flex justify-end">
+                    <button id="btnNextQuestion" onclick="nextQuizQuestion()" class="hidden btn-3d bg-purple-600 hover:bg-purple-500 text-white font-kids font-bold px-5 py-2.5 rounded-2xl">
+                        Soal Berikutnya ➡️
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Menampilkan model 3D dan mengaktifkan AR -->
-    <model-viewer
-        src="papua.gltf" 
-        alt="Model 3D Papua"
-        auto-rotate
-        camera-controls
-        ar
-        ar-modes="webxr scene-viewer quick-look"
-        environment-image="neutral"
-        shadow-intensity="1.5"
-        exposure="1">
-        
-        <button slot="ar-button" class="ar-button">
-            📸 Tampilkan di Ruangan Anda
-        </button>
-    </model-viewer>
-</body>
-</html>
+    <!-- JAVASCRIPT LENGKAP: DATA 7 PROVINSI, GENERATOR 3D THREE.JS, WEBAR CAMERA, TTS & KUIS -->
+    <script>
+        /***********************************************************************
+         * 1. DATA LENGKAP 7 PROVINSI / WILAYAH INDONESIA (RAMAH ANAK SD)
+         ***********************************************************************/
+        const PROVINCES_DATA = {
+            aceh: {
+                id: 'aceh',
+                name: 'Aceh',
+                fullName: 'Provinsi Aceh',
+                island: 'Pulau Sumatra (Ujung Barat)',
+                capital: 'Banda Aceh',
+                tagline: 'Dijuluki "Serambi Mekkah" yang kaya budaya Islam & maritim',
+                icon: '🕌',
+                btnColor: 'from-emerald-500 to-teal-600',
+                groundColor: 0x6ee7b7,
+                accentColor: 0x059669,
+                houseName: 'Rumoh Aceh (Krong Bade)',
+                costumeName: 'Pakaian Ulee Balang',
+                categories: {
+                    rumah: {
+                        title: 'Rumoh Aceh (Krong Bade)',
+                        emoji: '🏠',
+                        label: 'Rumah Adat Khas Aceh',
+                        desc: 'Rumoh Aceh adalah rumah panggung kayu setinggi 2,5 meter agar aman dari banjir dan hewan buas. Uniknya, rumah ini dibangun tanpa paku besi, melainkan memakai pasak kayu dan tali ijuk sehingga tahan guncangan gempa!'
+                    },
+                    pakaian: {
+                        title: 'Pakaian Adat Ulee Balang',
+                        emoji: '👘',
+                        label: 'Pakaian Adat Khas Aceh',
+                        desc: 'Laki-laki memakai baju Linto Baro dengan penutup kepala Meukeutop yang gagah. Perempuan memakai baju Daro Baro berwarna cerah dengan sulaman benang emas dan hiasan mahkota Sunting di kepala.'
+                    },
+                    tarian: {
+                        title: 'Tari Saman & Seudati',
+                        emoji: '💃',
+                        label: 'Tarian Daerah Aceh',
+                        desc: 'Tari Saman dimainkan oleh banyak penari yang duduk berbaris sambil menepuk dada dan tangan dengan sangat kompak dan cepat tanpa alat musik, hanya diiringi syair nyanyian!'
+                    },
+                    senjata: {
+                        title: 'Rencong Aceh',
+                        emoji: '🗡️',
+                        label: 'Senjata Tradisional Aceh',
+                        desc: 'Rencong memiliki gagang unik yang melengkung menyerupai huruf Arab "Bismillah". Dahulu digunakan oleh para pahlawan Aceh untuk menjaga kampung halaman.'
+                    },
+                    makanan: {
+                        title: 'Mie Aceh & Kuah Pliek U',
+                        emoji: '🍲',
+                        label: 'Makanan Khas Aceh',
+                        desc: 'Mie Aceh adalah mie kuning tebal yang dimasak dengan kuah kari rempah-rempah harum, disajikan bersama daging sapi, kambing, atau makanan laut yang lezat!'
+                    }
+                },
+                funFact: 'Pintu masuk Rumoh Aceh sengaja dibuat agak rendah, sehingga setiap tamu yang masuk otomatis menundukkan kepala sebagai tanda hormat kepada pemilik rumah!'
+            },
+            sumatra: {
+                id: 'sumatra',
+                name: 'Sumatra',
+                fullName: 'Sumatra (Minangkabau)',
+                island: 'Pulau Sumatra',
+                capital: 'Padang (Sumatra Barat)',
+                tagline: 'Negeri Rumah Gadang dengan filosofi alam yang indah',
+                icon: '🐃',
+                btnColor: 'from-red-500 to-amber-500',
+                groundColor: 0xfde047,
+                accentColor: 0xdc2626,
+                houseName: 'Rumah Gadang',
+                costumeName: 'Bundo Kanduang',
+                categories: {
+                    rumah: {
+                        title: 'Rumah Gadang (Rumah Bagonjong)',
+                        emoji: '🏠',
+                        label: 'Rumah Adat Sumatra Barat',
+                        desc: 'Ciri paling terkenal dari Rumah Gadang adalah atapnya yang melengkung runcing ke atas seperti tanduk kerbau yang disebut "Gonjong". Dindingnya penuh ukiran kayu warna-warni bermotif tumbuhan!'
+                    },
+                    pakaian: {
+                        title: 'Pakaian Bundo Kanduang & Penghulu',
+                        emoji: '👘',
+                        label: 'Pakaian Adat Sumatra',
+                        desc: 'Perempuan mengenakan penutup kepala bernama "Tingkuluak Tanduak" yang bentuknya menyerupai tanduk kerbau atau atap Rumah Gadang, lengkap dengan kain songket benang emas berkilau.'
+                    },
+                    tarian: {
+                        title: 'Tari Piring & Tari Payung',
+                        emoji: '💃',
+                        label: 'Tarian Daerah Sumatra',
+                        desc: 'Dalam Tari Piring, para penari mengayunkan piring di telapak tangan mereka dengan gerakan cepat dan lincah tanpa ada satu piring pun yang terjatuh! Diiringi alat musik Talempong dan Saluang.'
+                    },
+                    senjata: {
+                        title: 'Karih & Kerambit',
+                        emoji: '🗡️',
+                        label: 'Senjata Tradisional Sumatra',
+                        desc: 'Karih adalah belati berukir indah yang diselipkan di pinggang saat memakai baju adat penghulu sebagai lambang kebijaksanaan dan keberanian.'
+                    },
+                    makanan: {
+                        title: 'Rendang & Sate Padang',
+                        emoji: '🍲',
+                        label: 'Makanan Khas Sumatra',
+                        desc: 'Rendang adalah masakan daging sapi dengan santan dan rempah pilihan yang dimasak berjam-jam hingga gurih. Rendang pernah dinobatkan sebagai salah satu makanan terenak di dunia!'
+                    }
+                },
+                funFact: 'Di depan Rumah Gadang selalu ada bangunan kecil bernama "Rangkiang" yang berfungsi sebagai lumbung tempat menyimpan padi hasil panen!'
+            },
+            jawa: {
+                id: 'jawa',
+                name: 'Jawa',
+                fullName: 'Pulau Jawa',
+                island: 'Pulau Jawa',
+                capital: 'Yogyakarta / Semarang / Surabaya',
+                tagline: 'Pusat candi megah, musik gamelan, dan wayang kulit',
+                icon: '🎭',
+                btnColor: 'from-amber-600 to-yellow-500',
+                groundColor: 0xa3e635,
+                accentColor: 0xb45309,
+                houseName: 'Rumah Joglo',
+                costumeName: 'Kebaya & Beskap Blangkon',
+                categories: {
+                    rumah: {
+                        title: 'Rumah Adat Joglo',
+                        emoji: '🏠',
+                        label: 'Rumah Adat Pulau Jawa',
+                        desc: 'Rumah Joglo memiliki atap menjulang di bagian tengah seperti gunung yang ditopang oleh 4 tiang utama bernama "Soko Guru". Bagian depannya luas disebut Pendopo untuk menyambut tamu dan latihan menari.'
+                    },
+                    pakaian: {
+                        title: 'Kebaya, Beskap & Blangkon',
+                        emoji: '👘',
+                        label: 'Pakaian Adat Jawa',
+                        desc: 'Laki-laki memakai baju Beskap, kain batik jarik, dan penutup kepala batik yang dilipat rapi bernama Blangkon. Perempuan memakai Kebaya anggun dengan rambut disanggul.'
+                    },
+                    tarian: {
+                        title: 'Tari Serimpi, Gambyong & Merak',
+                        emoji: '💃',
+                        label: 'Tarian & Musik Gamelan Jawa',
+                        desc: 'Tarian Jawa terkenal dengan gerakannya yang lembut, tenang, dan anggun, diiringi alunan musik Gamelan (gong, bonang, saron, dan kendang) serta pertunjukan Wayang Kulit.'
+                    },
+                    senjata: {
+                        title: 'Keris Jawa (Tosan Aji)',
+                        emoji: '🗡️',
+                        label: 'Senjata Tradisional Jawa',
+                        desc: 'Keris memiliki bilah berlekuk-lekuk (disebut Luk) dengan motif logam indah bernama Pamor. Keris Jawa telah diakui oleh UNESCO sebagai warisan budaya dunia!'
+                    },
+                    makanan: {
+                        title: 'Gudeg, Rawon & Tumpeng',
+                        emoji: '🍲',
+                        label: 'Makanan Khas Jawa',
+                        desc: 'Gudeg terbuat dari nangka muda yang dimasak manis dengan santan, sedangkan Rawon dari Jawa Timur memiliki kuah hitam gurih dari buah kluwek.'
+                    }
+                },
+                funFact: 'Kain Batik dari Jawa dibuat dengan cara melukiskan malam (lilin cair hangat) menggunakan alat bernama Canting di atas kain putih!'
+            },
+            kalimantan: {
+                id: 'kalimantan',
+                name: 'Kalimantan',
+                fullName: 'Pulau Kalimantan',
+                island: 'Pulau Kalimantan (Borneo)',
+                capital: 'Pontianak / Palangkaraya / Samarinda',
+                tagline: 'Pulau seribu sungai dengan hutan hujan tropis dan budaya Dayak & Banjar',
+                icon: '🛡️',
+                btnColor: 'from-orange-500 to-red-600',
+                groundColor: 0x4ade80,
+                accentColor: 0xea580c,
+                houseName: 'Rumah Betang / Panjang',
+                costumeName: 'King Baba & King Bibinge',
+                categories: {
+                    rumah: {
+                        title: 'Rumah Betang (Rumah Panjang)',
+                        emoji: '🏠',
+                        label: 'Rumah Adat Kalimantan',
+                        desc: 'Rumah Betang adalah rumah panggung kayu ulin raksasa yang panjangnya bisa mencapai lebih dari 100 meter! Dihuni bersama-sama oleh banyak keluarga secara rukun dan gotong royong.'
+                    },
+                    pakaian: {
+                        title: 'King Baba & King Bibinge',
+                        emoji: '👘',
+                        label: 'Pakaian Adat Suku Dayak',
+                        desc: 'Dihiasi manik-manik warna-warni dengan motif burung Enggang (Rangkong). Di bagian kepala terdapat mahkota bulu burung Enggang yang melambangkan kedamaian dan keberanian.'
+                    },
+                    tarian: {
+                        title: 'Tari Gong (Kancet Ledo) & Perang',
+                        emoji: '💃',
+                        label: 'Tarian & Alat Musik Sape',
+                        desc: 'Dalam Tari Gong, penari perempuan menari dengan sangat seimbang di atas sebuah gong sambil memegang bulu burung Enggang di jari-jari tangannya, diiringi petikan alat musik Sape.'
+                    },
+                    senjata: {
+                        title: 'Mandau & Perisai Talawang',
+                        emoji: '🗡️',
+                        label: 'Senjata Tradisional Kalimantan',
+                        desc: 'Mandau adalah pedang khas Dayak dengan ukiran indah, selalu ditemani perisai kayu panjang bernama Talawang yang dilukis dengan corak pelindung.'
+                    },
+                    makanan: {
+                        title: 'Soto Banjar & Bubur Pedas',
+                        emoji: '🍲',
+                        label: 'Makanan Khas Kalimantan',
+                        desc: 'Soto Banjar berkuah harum rempah kayu manis yang disajikan dengan ketupat dan perkedel singkong. Sangat hangat dan lezat!'
+                    }
+                },
+                funFact: 'Kayu Ulin (Kayu Besi) yang dipakai untuk tiang Rumah Betang di Kalimantan justru semakin kuat dan keras seperti batu jika terkena air sungai!'
+            },
+            sulawesi: {
+                id: 'sulawesi',
+                name: 'Sulawesi',
+                fullName: 'Pulau Sulawesi',
+                island: 'Pulau Sulawesi',
+                capital: 'Makassar / Manado / Toraja',
+                tagline: 'Pulau berbentuk huruf K dengan pelaut ulung dan arsitektur Tongkonan',
+                icon: '⛵',
+                btnColor: 'from-sky-500 to-blue-600',
+                groundColor: 0x86efac,
+                accentColor: 0x0284c7,
+                houseName: 'Rumah Tongkonan',
+                costumeName: 'Baju Bodo & Seppa Tallung',
+                categories: {
+                    rumah: {
+                        title: 'Rumah Adat Tongkonan',
+                        emoji: '🏠',
+                        label: 'Rumah Adat Sulawesi (Toraja)',
+                        desc: 'Rumah Tongkonan memiliki atap melengkung tinggi di bagian depan dan belakang yang menyerupai perahu layar leluhur! Dindingnya dihiasi ukiran warna merah, hitam, dan kuning.'
+                    },
+                    pakaian: {
+                        title: 'Baju Bodo & Seppa Tallung Buku',
+                        emoji: '👘',
+                        label: 'Pakaian Adat Sulawesi',
+                        desc: 'Baju Bodo adalah salah satu pakaian adat tertua di dunia dari Sulawesi Selatan! Berbentuk blus berlengan pendek yang anggun dan dipadukan dengan sarung sutra tenun.'
+                    },
+                    tarian: {
+                        title: 'Tari Kipas Pakarena & Maengket',
+                        emoji: '💃',
+                        label: 'Tarian Daerah Sulawesi',
+                        desc: 'Penari Kipas Pakarena memainkan kipas warna-warni dengan gerakan tangan yang lembut sementara tabuhan gendang Ganrang berbunyi sangat rancak dan bersemangat.'
+                    },
+                    senjata: {
+                        title: 'Badik Sulawesi',
+                        emoji: '🗡️',
+                        label: 'Senjata Tradisional Sulawesi',
+                        desc: 'Badik berukuran ringkas dengan gagang kayu melengkung 45 derajat. Bagi masyarakat Bugis dan Makassar, Badik adalah simbol kehormatan diri dan persaudaraan.'
+                    },
+                    makanan: {
+                        title: 'Coto Makassar & Pisang Ijo',
+                        emoji: '🍲',
+                        label: 'Makanan Khas Sulawesi',
+                        desc: 'Coto Makassar adalah sup daging dengan kuah kacang tanah sangrai dan 40 macam rempah tradisional, disantap bersama ketupat daun pandan (Burasa). Pencuci mulutnya Es Pisang Ijo!'
+                    }
+                },
+                funFact: 'Selain Rumah Tongkonan, masyarakat Sulawesi Selatan juga terkenal sebagai pembuat kapal kayu raksasa "Pinisi" yang mampu berlayar mengarungi samudra dunia!'
+            },
+            bali: {
+                id: 'bali',
+                name: 'Bali',
+                fullName: 'Provinsi Bali',
+                island: 'Pulau Bali (Pulau Dewata)',
+                islandBadge: 'Pulau Bali',
+                capital: 'Denpasar',
+                tagline: 'Pulau Dewata yang terkenal di seluruh dunia karena seni & keindahannya',
+                icon: '🌺',
+                btnColor: 'from-purple-500 to-pink-500',
+                groundColor: 0xfef08a,
+                accentColor: 0x9333ea,
+                houseName: 'Gapura Candi Bentar & Bale',
+                costumeName: 'Payas Agung & Udeng',
+                categories: {
+                    rumah: {
+                        title: 'Gapura Candi Bentar & Bale Bali',
+                        emoji: '🏠',
+                        label: 'Arsitektur Adat Bali',
+                        desc: 'Rumah adat Bali terdiri dari beberapa bangunan Bale di dalam satu halaman yang dikelilingi tembok bata merah, dengan pintu masuk megah terbelah dua bernama Gapura Candi Bentar!'
+                    },
+                    pakaian: {
+                        title: 'Pakaian Payas Agung & Udeng',
+                        emoji: '👘',
+                        label: 'Pakaian Adat Bali',
+                        desc: 'Perempuan mengenakan kain kamen, selendang prada emas, dan mahkota bunga emas tinggi di kepala. Laki-laki memakai ikat kepala khas Bali bernama Udeng dan kain kotak-kotak hitam putih (Poleng).'
+                    },
+                    tarian: {
+                        title: 'Tari Pendet, Kecak & Barong',
+                        emoji: '💃',
+                        label: 'Tarian Daerah Bali',
+                        desc: 'Tari Pendet adalah tarian penyambutan tamu dengan menaburkan kelopak bunga dari bokor perak. Sedangkan Tari Kecak dimainkan puluhan penari yang berseru "Cak-cak-cak!" dengan kompak.'
+                    },
+                    senjata: {
+                        title: 'Keris Tayuhan Bali',
+                        emoji: '🗡️',
+                        label: 'Senjata Tradisional Bali',
+                        desc: 'Keris Bali memiliki ukuran yang lebih panjang dengan sarung kayu berukir halus dan gagang berhias permata warna-warni.'
+                    },
+                    makanan: {
+                        title: 'Ayam Betutu & Sate Lilit',
+                        emoji: '🍲',
+                        label: 'Makanan Khas Bali',
+                        desc: 'Sate Lilit dibuat dari daging ikan atau ayam cincang yang dicampur kelapa parut dan bumbu Base Genep, lalu dililitkan pada batang serai yang wangi sebelum dibakar!'
+                    }
+                },
+                funFact: 'Rumah dan Pura di Bali dibangun mengikuti aturan "Asta Kosala Kosali", yaitu filosofi keseimbangan antara manusia, alam sekitar, dan Tuhan!'
+            },
+            papua: {
+                id: 'papua',
+                name: 'Papua',
+                fullName: 'Tanah Papua',
+                island: 'Pulau Papua (Ujung Timur)',
+                capital: 'Jayapura / Wamena / Merauke',
+                tagline: 'Surga burung Cenderawasih dan puncak bersalju di ujung timur Indonesia',
+                icon: '🦜',
+                btnColor: 'from-cyan-500 to-emerald-600',
+                groundColor: 0x6ee7b7,
+                accentColor: 0x0891b2,
+                houseName: 'Rumah Adat Honai',
+                costumeName: 'Pakaian Rumbai & Mahkota Kasuari',
+                categories: {
+                    rumah: {
+                        title: 'Rumah Adat Honai',
+                        emoji: '🏠',
+                        label: 'Rumah Adat Papua',
+                        desc: 'Rumah Honai berbentuk bundar dengan atap kerucut membulat seperti jamur yang terbuat dari tumpukan jerami tebal! Bentuk ini sengaja dibuat tanpa jendela agar udara di dalamnya tetap hangat di pegunungan Papua yang dingin.'
+                    },
+                    pakaian: {
+                        title: 'Rok Rumbai, Sali & Mahkota Cenderawasih',
+                        emoji: '👘',
+                        label: 'Pakaian Adat Papua',
+                        desc: 'Terbuat dari serat daun sagu kering yang dirajut menjadi rok rumbai, dilengkapi lukisan tubuh bermotif alam, kalung kerang, dan hiasan kepala dari bulu burung Kasuari serta tas rajut Noken!'
+                    },
+                    tarian: {
+                        title: 'Tari Yospan (Yosim Pancar) & Sajojo',
+                        emoji: '💃',
+                        label: 'Tarian & Alat Musik Tifa',
+                        desc: 'Tari Yospan adalah tarian persahabatan anak-anak dan pemuda Papua yang sangat ceria dengan gerakan melompat penuh semangat sambil menabuh gendang tradisional bernama Tifa!'
+                    },
+                    senjata: {
+                        title: 'Busur & Panah Tradisional',
+                        emoji: '🗡️',
+                        label: 'Senjata Tradisional Papua',
+                        desc: 'Busur Papua dibuat dari kayu pohon bambu atau nibung yang lentur dengan tali rotan. Digunakan dengan sangat terampil untuk menjaga diri.'
+                    },
+                    makanan: {
+                        title: 'Papeda & Ikan Kuah Kuning',
+                        emoji: '🍲',
+                        label: 'Makanan Khas Papua',
+                        desc: 'Papeda adalah bubur sagu yang teksturnya kenyal bening, digulung menggunakan dua garpu kayu khusus lalu disantap bersama Ikan Tongkol Kuah Kuning yang segar!'
+                    }
+                },
+                funFact: 'Tas tradisional Papua bernama "Noken" dirajut dari serat kulit kayu dan uniknya dibawa dengan cara disangkutkan di kepala!'
+            }
+        };
+
+        // Urutan tampilan 7 Provinsi
+        const PROVINCE_KEYS = ['aceh', 'sumatra', 'jawa', 'kalimantan', 'sulawesi', 'bali', 'papua'];
+
+        // State Aplikasi
+        let currentProvinceKey = 'aceh';
+        let currentCategoryKey = 'rumah';
+        let isARMode = false;
+        let arStream = null;
+        let autoRotate = true;
+        let currentFocus = 'all'; // 'all', 'house', 'costume'
+        let danceTimer = 0;
+        let starScore = 0;
+
+        /***********************************************************************
+         * 2. ENGINE 3D PROSEDURAL THREE.JS (MODEL RUMAH ADAT & PAKAIAN ADAT)
+         ***********************************************************************/
+        let scene, camera, renderer, dioramaGroup, houseGroup, characterGroup, envGroup;
+        let targetCameraPos = new THREE.Vector3(0, 4.5, 9.5);
+        let targetLookAt = new THREE.Vector3(0, 1.4, 0);
+        let isDragging = false;
+        let prevPointer = { x: 0, y: 0 };
+
+        function initThreeJS() {
+            const container = document.getElementById('threeCanvasWrapper');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.copy(targetCameraPos);
+            camera.lookAt(targetLookAt);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Pencahayaan Cerah Ramah Anak
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.78);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xfffbeb, 0.9);
+            dirLight.position.set(8, 14, 10);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            scene.add(dirLight);
+
+            const fillLight = new THREE.DirectionalLight(0xbae6fd, 0.4);
+            fillLight.position.set(-8, 5, -6);
+            scene.add(fillLight);
+
+            // Grup Utama Diorama 3D
+            dioramaGroup = new THREE.Group();
+            scene.add(dioramaGroup);
+
+            // Interaksi Mouse & Sentuhan Layar (360 Rotate & Zoom)
+            const domElem = renderer.domElement;
+            domElem.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                prevPointer = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('pointermove', (e) => {
+                if (!isDragging || !dioramaGroup) return;
+                const dx = e.clientX - prevPointer.x;
+                const dy = e.clientY - prevPointer.y;
+                dioramaGroup.rotation.y += dx * 0.012;
+                dioramaGroup.rotation.x = Math.max(-0.25, Math.min(0.35, dioramaGroup.rotation.x + dy * 0.005));
+                prevPointer = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('pointerup', () => {
+                isDragging = false;
+            });
+
+            // Scroll Wheel Zoom
+            domElem.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                zoomCamera(e.deltaY * 0.004);
+            }, { passive: false });
+
+            // Responsif saat ukuran layar berubah
+            window.addEventListener('resize', onWindowResize);
+
+            // Bangun diorama pertama (Aceh)
+            buildProvince3DScene(currentProvinceKey);
+            animateThreeJS();
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('threeCanvasWrapper');
+            if (!container || !renderer || !camera) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // Helper pembuat Mesh cepat dengan bayangan
+        function createMesh(geo, color, flatShading = true) {
+            const mat = new THREE.MeshStandardMaterial({
+                color: color,
+                roughness: 0.55,
+                metalness: 0.08,
+                flatShading: flatShading
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            return mesh;
+        }
+
+        // Membangun Diorama 3D Spesifik untuk Setiap Provinsi
+        function buildProvince3DScene(provKey) {
+            // Bersihkan diorama sebelumnya
+            while (dioramaGroup.children.length > 0) {
+                dioramaGroup.remove(dioramaGroup.children[0]);
+            }
+
+            const data = PROVINCES_DATA[provKey];
+            houseGroup = new THREE.Group();
+            characterGroup = new THREE.Group();
+            envGroup = new THREE.Group();
+
+            // 1. Pulau Dasar Mengambang (Floating Mini Island)
+            const islandTop = createMesh(new THREE.CylinderGeometry(3.8, 3.4, 0.45, 24), data.groundColor);
+            islandTop.position.y = -0.22;
+            envGroup.add(islandTop);
+
+            const islandSoil = createMesh(new THREE.ConeGeometry(3.4, 1.6, 16), 0x92400e);
+            islandSoil.rotation.x = Math.PI;
+            islandSoil.position.y = -1.2;
+            envGroup.add(islandSoil);
+
+            // Ring cincin dekoratif budaya di tepi pulau
+            const ringGeo = new THREE.TorusGeometry(3.65, 0.08, 8, 36);
+            const ringMesh = createMesh(ringGeo, data.accentColor);
+            ringMesh.rotation.x = Math.PI / 2;
+            ringMesh.position.y = 0.02;
+            envGroup.add(ringMesh);
+
+            // Jalan setapak batu menuju depan rumah
+            for (let i = 0; i < 4; i++) {
+                const stone = createMesh(new THREE.CylinderGeometry(0.32, 0.35, 0.08, 8), 0xe2e8f0);
+                stone.position.set((i % 2 === 0 ? -0.15 : 0.15), 0.04, 1.1 + i * 0.55);
+                envGroup.add(stone);
+            }
+
+            // 2. Bangun Rumah Adat 3D Khas Masing-Masing Provinsi
+            buildTraditionalHouse(provKey, houseGroup);
+            houseGroup.position.set(0, 0, -0.55);
+
+            // 3. Bangun Sepasang Karakter Anak Berpakaian Adat 3D
+            buildTraditionalCouple(provKey, characterGroup);
+            characterGroup.position.set(0, 0, 1.75);
+
+            // 4. Tambah Pohon & Elemen Alam Sekitar
+            addEnvironmentTrees(provKey, envGroup);
+
+            dioramaGroup.add(envGroup);
+            dioramaGroup.add(houseGroup);
+            dioramaGroup.add(characterGroup);
+
+            // Animasi pop-in halus saat ganti provinsi
+            dioramaGroup.scale.set(0.01, 0.01, 0.01);
+        }
+
+        // Generator Rumah Adat 3D untuk 7 Provinsi
+        function buildTraditionalHouse(provKey, group) {
+            if (provKey === 'aceh') {
+                // RUMOH ACEH: Rumah panggung tinggi 16 tiang, atap pelana panjang + ornamen segitiga hijau-kuning
+                for (let x = -1.6; x <= 1.6; x += 1.06) {
+                    for (let z = -0.7; z <= 0.7; z += 1.4) {
+                        const pole = createMesh(new THREE.CylinderGeometry(0.11, 0.11, 1.3, 8), 0x78350f);
+                        pole.position.set(x, 0.65, z);
+                        group.add(pole);
+                    }
+                }
+                const body = createMesh(new THREE.BoxGeometry(3.6, 1.1, 1.8), 0xb45309);
+                body.position.y = 1.75;
+                group.add(body);
+
+                // Sabuk ukiran kuning hijau khas Aceh
+                const belt = createMesh(new THREE.BoxGeometry(3.68, 0.22, 1.88), 0xfacc15);
+                belt.position.y = 1.35;
+                group.add(belt);
+
+                // Atap pelana tinggi
+                const roofGeo = new THREE.ConeGeometry(2.4, 1.6, 4);
+                const roof = createMesh(roofGeo, 0x451a03);
+                roof.rotation.y = Math.PI / 4;
+                roof.scale.set(1.25, 1, 0.75);
+                roof.position.y = 3.05;
+                group.add(roof);
+
+                // Tangga depan ganjil
+                const stairs = createMesh(new THREE.BoxGeometry(0.55, 1.3, 0.2), 0x92400e);
+                stairs.position.set(0, 0.6, 1.15);
+                stairs.rotation.x = -0.35;
+                group.add(stairs);
+
+            } else if (provKey === 'sumatra') {
+                // RUMAH GADANG: Atap Bagonjong melengkung runcing seperti tanduk kerbau!
+                const base = createMesh(new THREE.BoxGeometry(3.5, 0.5, 1.7), 0x78350f);
+                base.position.y = 0.25;
+                group.add(base);
+
+                const wall = createMesh(new THREE.BoxGeometry(3.6, 1.25, 1.8), 0xdc2626);
+                wall.position.y = 1.1;
+                group.add(wall);
+
+                // Ornamen emas dinding Minang
+                const goldTrim = createMesh(new THREE.BoxGeometry(3.66, 0.25, 1.86), 0xfbbf24);
+                goldTrim.position.y = 1.55;
+                group.add(goldTrim);
+
+                // Atap tengah
+                const centerRoof = createMesh(new THREE.BoxGeometry(3.2, 0.7, 1.6), 0x334155);
+                centerRoof.position.y = 2.05;
+                group.add(centerRoof);
+
+                // 5 Gonjong Tanduk Runcing (Kiri & Kanan bertingkat + 1 depan)
+                const createGonjong = (x, y, z, tiltZ, scale = 1) => {
+                    const horn = createMesh(new THREE.ConeGeometry(0.45 * scale, 1.9 * scale, 4), 0x1e293b);
+                    horn.position.set(x, y, z);
+                    horn.rotation.z = tiltZ;
+                    horn.rotation.y = Math.PI / 4;
+                    group.add(horn);
+                    // Ujung emas gonjong
+                    const tip = createMesh(new THREE.ConeGeometry(0.12 * scale, 0.45 * scale, 6), 0xfacc15);
+                    tip.position.set(x - Math.sin(tiltZ) * 1.0 * scale, y + Math.cos(tiltZ) * 1.0 * scale, z);
+                    tip.rotation.z = tiltZ;
+                    group.add(tip);
+                };
+                createGonjong(-1.7, 2.75, 0, 0.38, 1.05);
+                createGonjong(-0.95, 2.55, 0, 0.22, 0.85);
+                createGonjong(1.7, 2.75, 0, -0.38, 1.05);
+                createGonjong(0.95, 2.55, 0, -0.22, 0.85);
+                createGonjong(0, 2.45, 0.75, 0, 0.75);
+
+            } else if (provKey === 'jawa') {
+                // RUMAH JOGLO: Lantai bertingkat, 4 Tiang Soko Guru, Atap Tajug bertumpuk 2 tingkat
+                const floor1 = createMesh(new THREE.BoxGeometry(3.8, 0.25, 2.6), 0x78350f);
+                floor1.position.y = 0.12;
+                group.add(floor1);
+
+                const backWall = createMesh(new THREE.BoxGeometry(2.8, 1.3, 1.5), 0xb45309);
+                backWall.position.set(0, 0.9, -0.25);
+                group.add(backWall);
+
+                // 4 Tiang Soko Guru di Pendopo depan
+                [[-1.3, 0.85], [-0.45, 0.85], [0.45, 0.85], [1.3, 0.85]].forEach(([x, z]) => {
+                    const pillar = createMesh(new THREE.CylinderGeometry(0.1, 0.12, 1.35, 8), 0x78350f);
+                    pillar.position.set(x, 0.85, z);
+                    group.add(pillar);
+                });
+
+                // Atap Joglo Bawah (Melebar)
+                const roofLow = createMesh(new THREE.CylinderGeometry(1.3, 2.8, 0.85, 4), 0x9a3412);
+                roofLow.rotation.y = Math.PI / 4;
+                roofLow.scale.set(1.15, 1, 0.85);
+                roofLow.position.y = 1.9;
+                group.add(roofLow);
+
+                // Atap Joglo Puncak (Tinggi Menjulang)
+                const roofHigh = createMesh(new THREE.CylinderGeometry(0.35, 1.35, 1.25, 4), 0x7c2d12);
+                roofHigh.rotation.y = Math.PI / 4;
+                roofHigh.scale.set(1.1, 1, 0.8);
+                roofHigh.position.y = 2.85;
+                group.add(roofHigh);
+
+            } else if (provKey === 'kalimantan') {
+                // RUMAH BETANG / PANJANG: Rumah panggung sangat panjang dengan perisai Dayak & Tangga Batang Kayu
+                for (let x = -1.9; x <= 1.9; x += 0.95) {
+                    const p1 = createMesh(new THREE.CylinderGeometry(0.1, 0.1, 1.3, 8), 0x451a03);
+                    p1.position.set(x, 0.65, -0.6);
+                    const p2 = p1.clone();
+                    p2.position.z = 0.6;
+                    group.add(p1, p2);
+                }
+                const longBody = createMesh(new THREE.BoxGeometry(4.2, 1.05, 1.5), 0xd97706);
+                longBody.position.y = 1.75;
+                group.add(longBody);
+
+                // Corak Talawang Dayak Merah-Putih-Hitam di sepanjang rumah
+                const motifStrip = createMesh(new THREE.BoxGeometry(4.25, 0.3, 1.55), 0xdc2626);
+                motifStrip.position.y = 1.55;
+                group.add(motifStrip);
+
+                const roof = createMesh(new THREE.ConeGeometry(2.6, 1.3, 4), 0x78350f);
+                roof.rotation.y = Math.PI / 4;
+                roof.scale.set(1.35, 1, 0.65);
+                roof.position.y = 2.85;
+                group.add(roof);
+
+                // Ornamen Tanduk Enggang di ujung atap
+                const hornL = createMesh(new THREE.ConeGeometry(0.15, 0.6, 5), 0xfef08a);
+                hornL.position.set(-2.1, 3.3, 0);
+                hornL.rotation.z = 0.5;
+                const hornR = hornL.clone();
+                hornR.position.x = 2.1;
+                hornR.rotation.z = -0.5;
+                group.add(hornL, hornR);
+
+            } else if (provKey === 'sulawesi') {
+                // RUMAH TONGKONAN: Atap melengkung perahu menjulang ke depan & belakang + tanduk kerbau
+                for (let x = -0.8; x <= 0.8; x += 0.8) {
+                    for (let z = -0.8; z <= 0.8; z += 1.6) {
+                        const pole = createMesh(new THREE.CylinderGeometry(0.11, 0.11, 1.2, 8), 0x451a03);
+                        pole.position.set(x, 0.6, z);
+                        group.add(pole);
+                    }
+                }
+                const cabin = createMesh(new THREE.BoxGeometry(1.8, 1.0, 2.2), 0x991b1b);
+                cabin.position.y = 1.6;
+                group.add(cabin);
+
+                // Rakitan Atap Perahu Melengkung (Boat-Shaped Roof)
+                const roofMid = createMesh(new THREE.BoxGeometry(1.5, 0.65, 2.2), 0x78350f);
+                roofMid.position.y = 2.3;
+                group.add(roofMid);
+
+                const prowFront = createMesh(new THREE.ConeGeometry(1.1, 2.1, 4), 0x92400e);
+                prowFront.rotation.y = Math.PI / 4;
+                prowFront.rotation.x = 0.62;
+                prowFront.position.set(0, 3.05, 1.45);
+                group.add(prowFront);
+
+                const prowBack = createMesh(new THREE.ConeGeometry(1.1, 2.1, 4), 0x92400e);
+                prowBack.rotation.y = Math.PI / 4;
+                prowBack.rotation.x = -0.62;
+                prowBack.position.set(0, 3.05, -1.45);
+                group.add(prowBack);
+
+                // Tiang depan Tulak Somba
+                const frontPole = createMesh(new THREE.CylinderGeometry(0.07, 0.07, 3.3, 8), 0xfacc15);
+                frontPole.position.set(0, 1.65, 1.55);
+                group.add(frontPole);
+
+            } else if (provKey === 'bali') {
+                // GAPURA CANDI BENTAR BALI & BALE: Dua menara bata merah terbelah simetris dengan ukiran emas
+                const buildCandiTower = (xSide) => {
+                    const tower = new THREE.Group();
+                    const levels = [
+                        { w: 1.05, h: 0.45, d: 0.9 },
+                        { w: 0.9,  h: 0.55, d: 0.8 },
+                        { w: 0.75, h: 0.55, d: 0.7 },
+                        { w: 0.58, h: 0.55, d: 0.6 },
+                        { w: 0.4,  h: 0.5,  d: 0.5 }
+                    ];
+                    let currY = 0;
+                    levels.forEach((lv, idx) => {
+                        const block = createMesh(new THREE.BoxGeometry(lv.w, lv.h, lv.d), 0xc2410c);
+                        // Geser sisi dalam agar tegak lurus seperti Candi Bentar asli
+                        block.position.set(xSide * (lv.w / 2), currY + lv.h / 2, 0.3);
+                        tower.add(block);
+
+                        // Ornamen emas di tiap tingkat
+                        const gold = createMesh(new THREE.BoxGeometry(lv.w + 0.06, 0.09, lv.d + 0.06), 0xfacc15);
+                        gold.position.set(xSide * (lv.w / 2), currY + lv.h, 0.3);
+                        tower.add(gold);
+                        currY += lv.h;
+                    });
+                    return tower;
+                };
+
+                const leftGate = buildCandiTower(-1);
+                leftGate.position.x = -0.42;
+                const rightGate = buildCandiTower(1);
+                rightGate.position.x = 0.42;
+                group.add(leftGate, rightGate);
+
+                // Bale Bali di belakang Gapura + Payung Tedung Bali
+                const baleRoof = createMesh(new THREE.ConeGeometry(1.6, 1.1, 4), 0x78350f);
+                baleRoof.rotation.y = Math.PI / 4;
+                baleRoof.position.set(0, 2.3, -1.0);
+                group.add(baleRoof);
+
+                // Payung Tedung Kuning Bali
+                [-1.7, 1.7].forEach((xPos) => {
+                    const stick = createMesh(new THREE.CylinderGeometry(0.04, 0.04, 2.1, 6), 0x78350f);
+                    stick.position.set(xPos, 1.05, 0.5);
+                    const umbrella = createMesh(new THREE.ConeGeometry(0.55, 0.35, 12), 0xfacc15);
+                    umbrella.position.set(xPos, 2.1, 0.5);
+                    group.add(stick, umbrella);
+                });
+
+            } else if (provKey === 'papua') {
+                // RUMAH HONAI PAPUA: Dinding kayu bundar + Atap kubah jerami membulat seperti jamur
+                const wall = createMesh(new THREE.CylinderGeometry(1.55, 1.6, 1.25, 20), 0x78350f);
+                wall.position.y = 0.62;
+                group.add(wall);
+
+                // Ikatan rotan melingkar di dinding Honai
+                const rattan = createMesh(new THREE.TorusGeometry(1.59, 0.06, 8, 24), 0xfde047);
+                rattan.rotation.x = Math.PI / 2;
+                rattan.position.y = 0.9;
+                group.add(rattan);
+
+                // Kubah Jerami Berlapis (Dome Thatch Roof)
+                const dome = createMesh(new THREE.SphereGeometry(1.75, 20, 14, 0, Math.PI * 2, 0, Math.PI * 0.55), 0xca8a04);
+                dome.position.y = 1.1;
+                dome.scale.y = 1.15;
+                group.add(dome);
+
+                const topCap = createMesh(new THREE.ConeGeometry(0.55, 0.6, 12), 0xa16207);
+                topCap.position.y = 3.05;
+                group.add(topCap);
+
+                // Pintu kecil hangat di depan Honai
+                const door = createMesh(new THREE.BoxGeometry(0.55, 0.85, 0.2), 0x1e293b);
+                door.position.set(0, 0.45, 1.52);
+                group.add(door);
+            }
+        }
+
+        // Generator Sepasang Karakter Anak 3D Berpakaian Adat Khas Provinsi
+        function buildTraditionalCouple(provKey, group) {
+            const palettes = {
+                aceh:       { boyTop: 0x0f172a, boySkirt: 0xd97706, girlTop: 0xdc2626, girlSkirt: 0xfacc15, hatColor: 0xfbbf24 },
+                sumatra:    { boyTop: 0xb91c1c, boySkirt: 0xfacc15, girlTop: 0xdc2626, girlSkirt: 0xf59e0b, hatColor: 0xfacc15 },
+                jawa:       { boyTop: 0x1e293b, boySkirt: 0x92400e, girlTop: 0xbe185d, girlSkirt: 0x92400e, hatColor: 0x78350f },
+                kalimantan: { boyTop: 0x1e293b, boySkirt: 0xdc2626, girlTop: 0x1e293b, girlSkirt: 0xdc2626, hatColor: 0xf8fafc },
+                sulawesi:   { boyTop: 0x0284c7, boySkirt: 0xfacc15, girlTop: 0xf43f5e, girlSkirt: 0xfacc15, hatColor: 0xfacc15 },
+                bali:       { boyTop: 0xffffff, boySkirt: 0x334155, girlTop: 0xfacc15, girlSkirt: 0x9333ea, hatColor: 0xfacc15 },
+                papua:      { boyTop: 0x92400e, boySkirt: 0xca8a04, girlTop: 0xca8a04, girlSkirt: 0xa16207, hatColor: 0xef4444 }
+            };
+            const pal = palettes[provKey];
+
+            const createKidCharacter = (isGirl, xPos) => {
+                const char = new THREE.Group();
+                char.position.set(xPos, 0, 0);
+
+                // Badan & Kain Bawahan
+                const skirt = createMesh(
+                    new THREE.CylinderGeometry(0.24, 0.32, 0.55, 12),
+                    isGirl ? pal.girlSkirt : pal.boySkirt
+                );
+                skirt.position.y = 0.28;
+                char.add(skirt);
+
+                // Baju Atasan
+                const torso = createMesh(
+                    new THREE.CylinderGeometry(0.22, 0.25, 0.48, 12),
+                    isGirl ? pal.girlTop : pal.boyTop
+                );
+                torso.position.y = 0.72;
+                char.add(torso);
+
+                // Selempang Emas / Sabuk Adat
+                const sash = createMesh(new THREE.TorusGeometry(0.24, 0.045, 6, 16), 0xfacc15);
+                sash.rotation.x = Math.PI / 2;
+                sash.rotation.y = 0.4;
+                sash.position.y = 0.72;
+                char.add(sash);
+
+                // Kepala Lucu
+                const head = createMesh(new THREE.SphereGeometry(0.26, 16, 16), 0xfdba74);
+                head.position.y = 1.18;
+                char.add(head);
+
+                // Mata Hitam Ramah
+                const eyeL = createMesh(new THREE.SphereGeometry(0.035, 8, 8), 0x0f172a);
+                eyeL.position.set(-0.09, 1.2, 0.23);
+                const eyeR = eyeL.clone();
+                eyeR.position.x = 0.09;
+                char.add(eyeL, eyeR);
+
+                // Tangan Kiri & Kanan
+                const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.4, 8);
+                const armL = createMesh(armGeo, isGirl ? pal.girlTop : pal.boyTop);
+                armL.position.set(-0.3, 0.72, 0.05);
+                armL.rotation.z = 0.35;
+                const armR = armL.clone();
+                armR.position.x = 0.3;
+                armR.rotation.z = -0.35;
+                char.add(armL, armR);
+
+                // Aksesoris Kepala Khas Daerah
+                if (provKey === 'sumatra' && isGirl) {
+                    // Tingkuluak Tanduak (Tanduk Kerbau Emas)
+                    const hornHat = createMesh(new THREE.TorusGeometry(0.24, 0.08, 8, 12, Math.PI), 0xfacc15);
+                    hornHat.rotation.z = Math.PI;
+                    hornHat.position.y = 1.5;
+                    char.add(hornHat);
+                } else if (provKey === 'kalimantan' || provKey === 'papua') {
+                    // Ikatan Kepala Manik & Bulu Burung Enggang / Cenderawasih
+                    const headband = createMesh(new THREE.CylinderGeometry(0.27, 0.27, 0.1, 12), 0xdc2626);
+                    headband.position.y = 1.32;
+                    char.add(headband);
+                    for (let f = -1; f <= 1; f++) {
+                        const feather = createMesh(new THREE.ConeGeometry(0.06, 0.42, 6), f === 0 ? 0xfacc15 : pal.hatColor);
+                        feather.position.set(f * 0.12, 1.56, 0);
+                        feather.rotation.z = -f * 0.25;
+                        char.add(feather);
+                    }
+                } else {
+                    // Mahkota Sunting / Blangkon / Udeng / Meukeutop
+                    const crown = createMesh(
+                        isGirl ? new THREE.ConeGeometry(0.25, 0.35, 8) : new THREE.CylinderGeometry(0.22, 0.26, 0.22, 10),
+                        pal.hatColor
+                    );
+                    crown.position.y = 1.45;
+                    char.add(crown);
+                }
+
+                return char;
+            };
+
+            const boy = createKidCharacter(false, -0.58);
+            const girl = createKidCharacter(true, 0.58);
+            group.add(boy, girl);
+        }
+
+        // Menambahkan Pohon Kelapa / Cemara di sekitar Pulau 3D
+        function addEnvironmentTrees(provKey, group) {
+            const treePositions = [
+                { x: -2.4, z: -1.1, scale: 1.0 },
+                { x: 2.5, z: -0.9, scale: 0.9 },
+                { x: -2.2, z: 1.2, scale: 0.75 }
+            ];
+            treePositions.forEach((pos) => {
+                const tree = new THREE.Group();
+                const trunk = createMesh(new THREE.CylinderGeometry(0.08, 0.13, 1.1, 7), 0x78350f);
+                trunk.position.y = 0.55;
+                tree.add(trunk);
+
+                const leaves1 = createMesh(new THREE.ConeGeometry(0.65, 0.9, 7), 0x15803d);
+                leaves1.position.y = 1.2;
+                const leaves2 = createMesh(new THREE.ConeGeometry(0.5, 0.75, 7), 0x22c55e);
+                leaves2.position.y = 1.65;
+                tree.add(leaves1, leaves2);
+
+                tree.position.set(pos.x, 0, pos.z);
+                tree.scale.setScalar(pos.scale);
+                group.add(tree);
+            });
+        }
+
+        // Loop Animasi 3D Interaktif
+        function animateThreeJS() {
+            requestAnimationFrame(animateThreeJS);
+            const time = performance.now() * 0.001;
+
+            if (dioramaGroup) {
+                // Smooth scale-in saat baru berganti provinsi
+                dioramaGroup.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+
+                // Putar otomatis perlahan jika sedang tidak di-drag
+                if (autoRotate && !isDragging) {
+                    dioramaGroup.rotation.y += 0.0045;
+                }
+
+                // Efek mengambang lembut pada pulau
+                dioramaGroup.position.y = Math.sin(time * 2) * 0.08;
+            }
+
+            // Animasi karakter bernapas & menari gembira
+            if (characterGroup) {
+                const isDancing = danceTimer > 0;
+                if (is
+```
